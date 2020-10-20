@@ -116,22 +116,23 @@ def test_generate_hotp_uri():
     assert generated_uri.netloc == expected_uri.netloc
     assert generated_uri.path == expected_uri.path
     assert urlparse.parse_qs(generated_uri.params) == urlparse.parse_qs(expected_uri.params)
-    print(expected_uri, generated_uri)
     assert urlparse.parse_qs(generated_uri.query) == urlparse.parse_qs(expected_uri.query)
 
-def test_check_token_detects_valid_totp_token():
-    test_request = generate_request()
+def provision_valid_token(token_model, attr, not_attr):
+    test_request = generate_request(token_model=token_model)
     test_response = requests.post(PROVISIONING_URL, data=test_request)
     test_otp_token = get_token_from_response(test_response.content)
+    assert test_otp_token[attr] is not None
+    assert test_otp_token[not_attr] is None
+    assert test_otp_token['id'].startswith(token_model)
     test_token_secret = decrypt_key(test_otp_token['iv'], test_otp_token['cipher'])
     assert check_token(test_otp_token, test_token_secret)
 
-def test_check_token_detects_valid_hotp_token():
-    test_request = generate_request(token_model='UBHE')
-    test_response = requests.post(PROVISIONING_URL, data=test_request)
-    test_otp_token = get_token_from_response(test_response.content)
-    test_token_secret = decrypt_key(test_otp_token['iv'], test_otp_token['cipher'])
-    assert check_token(test_otp_token, test_token_secret)
+def test_check_token_models():
+    for token_model in ('VSMT', 'VSST', 'SYMC'):
+        yield provision_valid_token, token_model, 'period', 'counter'
+    for token_model in ('UBHE',):
+        yield provision_valid_token, token_model, 'counter', 'period'
 
 def test_check_token_detects_invalid_token():
     test_token = {'id': 'VSST26070843', 'period': 30}
