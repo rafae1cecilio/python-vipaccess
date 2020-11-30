@@ -79,7 +79,7 @@ def generate_request(**request_parameters):
     default_model = 'MacBookPro%d,%d' % (random.randint(1, 12), random.randint(1, 4))
     default_request_parameters = {
         'timestamp':int(time.time()),
-        'token_model':'VSST',
+        'token_model':'SYMC',
         'otp_algorithm':'HMAC-SHA1-TRUNC-6DIGITS',
         'shared_secret_delivery_method':'HTTPS',
         'manufacturer':'Apple Inc.',

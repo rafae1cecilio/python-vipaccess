@@ -191,9 +191,10 @@ def main():
                    help="File in which to store the new credential (default ~/.vipaccess)")
     pprov.add_argument('-i', '--issuer', default="Symantec", action='store',
                        help="Specify the issuer name to use (default: Symantec)")
-    pprov.add_argument('-t', '--token-model', default='VSST',
-                      help="VIP Access token model. Often VSST (desktop token, default) or VSMT (mobile token) or SYMC. "
-                           "Some clients only accept one or the other. Other more obscure token types also exist: "
+    pprov.add_argument('-t', '--token-model', default='SYMC',
+                      help='VIP Access token model. Often SYMC/VSMT ("mobile" token, default) or '
+                           'SYDC/VSST ("desktop" token). Some clients only accept one or the other. '
+                           "Other more obscure token types also exist: "
                            "https://support.symantec.com/en_US/article.TECH239895.html")
 
     pcheck = sp.add_parser('check', help='Check if a VIP Access credential is working')

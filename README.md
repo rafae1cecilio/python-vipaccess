@@ -30,8 +30,8 @@ This is a fork of [**`cyrozap/python-vipaccess`**](https://github.com/dlenski/py
   external tools such as [`qrencode`](https://github.com/fukuchi/libqrencode)
   to convert an `otpauth://` URI to a QR code if needed, so it seems
   unnecessary to build in this functionality.
-- Option to generate either the desktop (`VSST`) or mobile (`VSMT`)
-  version on the VIP Access tokens; as far as I can tell there is no
+- Option to generate either the mobile (`SYMC/VSMT`) or desktop (`SYDC/VSST`)
+  versions of the VIP Access tokens; as far as I can tell there is no
   real difference between them, but some clients require one or the
   other specifically. There are also some rarer token types/prefixes
   which can be generated if necessary
@@ -98,7 +98,7 @@ Usage
 ### Provisioning a new VIP Access credential
 
 This is used to create a new VIP Access token. It connects to https://services.vip.symantec.com/prov
-and requests a new token, then deobfuscates it, and checks whether it is properly decoded and 
+and requests a new token, then deobfuscates it, and checks whether it is properly decoded and
 working correctly, via a second request to https://vip.symantec.com/otpCheck.
 
 By default it stores the new token in the file `.vipaccess` in your home directory (in a
@@ -118,10 +118,10 @@ optional arguments:
   -i ISSUER, --issuer ISSUER
                         Specify the issuer name to use (default: Symantec)
   -t TOKEN_MODEL, --token-model TOKEN_MODEL
-                        VIP Access token model. Often VSST (desktop token,
-                        default) or VSMT (mobile token) or SYMC. Some clients
-                        only accept one or the other. Other more obscure token
-                        types also exist:
+                        VIP Access token model. Often SYMC/VSMT ("mobile"
+                        token, default) or SYDC/VSST ("desktop" token). Some
+                        clients only accept one or the other. Other more
+                        obscure token types also exist:
                         https://support.symantec.com/en_US/article.TECH239895.html
 ```
 
@@ -134,10 +134,10 @@ Getting token from response...
 Decrypting token...
 Checking token against Symantec server...
 Credential created successfully:
-	otpauth://totp/VIP%20Access:VSST12345678?secret=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&issuer=Symantec&algorithm=SHA1&digits=6
+	otpauth://totp/VIP%20Access:SYMC12345678?secret=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&issuer=Symantec&algorithm=SHA1&digits=6
 This credential expires on this date: 2019-01-15T12:00:00.000Z
 
-You will need the ID to register this credential: VSST12345678
+You will need the ID to register this credential: SYMC12345678
 
 You can use oathtool to generate the same OTP codes
 as would be produced by the official VIP Access apps:
@@ -153,7 +153,7 @@ read/write permissions *only* for the current user.)
 ```
 version 1
 secret AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-id VSST12345678
+id SYMC12345678
 expiry 2019-01-15T12:00:00.000Z
 ```
 
@@ -163,7 +163,7 @@ Once you generate a token with `vipaccess provision`, use `vipaccess uri` to sho
 [`qrencode`](https://fukuchi.org/works/qrencode/manual/index.html) to display that URI as a QR code:
 
 ```
-$ qrencode -t UTF8 'otpauth://totp/VIP%20Access:VSSTXXXX?secret=YYYY&issuer=Symantec&algorithm=SHA1&digits=6'
+$ qrencode -t UTF8 'otpauth://totp/VIP%20Access:SYMCXXXX?secret=YYYY&issuer=Symantec&algorithm=SHA1&digits=6'
 ```
 
 Scan the code into your TOTP generating app,
