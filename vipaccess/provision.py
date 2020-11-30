@@ -144,8 +144,12 @@ def get_token_from_response(response_xml):
         token['expiry'] = expiry.text
         ts = usage.find('v:TimeStep', ns) # TOTP only
         token['period'] = int(ts.text) if ts is not None else None
-        ct = usage.find('v:Counter', ns) # HOTP ony
+        ct = usage.find('v:Counter', ns) # HOTP only
         token['counter'] = int(ct.text) if ct is not None else None
+
+        # Apparently, secret.attrib['type'] == 'HOTP' in all cases, so the presence or absence of
+        # the counter or period fields is the only sane way to distinguish TOTP from HOTP tokens.
+        assert (token['counter'] is not None and token['period'] is None) or (token['period'] is not None and token['counter'] is None)
 
         algorithm = usage.find('v:AI', ns).attrib['type'].split('-')
         if len(algorithm)==4 and algorithm[0]=='HMAC' and algorithm[2]=='TRUNC' and algorithm[3].endswith('DIGITS'):

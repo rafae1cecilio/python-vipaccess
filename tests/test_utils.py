@@ -129,7 +129,7 @@ def provision_valid_token(token_model, attr, not_attr):
     assert check_token(test_otp_token, test_token_secret)
 
 def test_check_token_models():
-    for token_model in ('VSMT', 'VSST', 'SYMC'):
+    for token_model in ('VSMT', 'VSST', 'SYMC', 'SYDC'):
         yield provision_valid_token, token_model, 'period', 'counter'
     for token_model in ('UBHE',):
         yield provision_valid_token, token_model, 'counter', 'period'
