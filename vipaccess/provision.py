@@ -174,7 +174,7 @@ def decrypt_key(token_iv, token_cipher):
 
     return otp_key
 
-def generate_otp_uri(token, secret, issuer='Symantec'):
+def generate_otp_uri(token, secret, issuer='Symantec', image='https://vip.symantec.com/favicon.ico'):
     '''Generate the OTP URI.'''
     token_parameters = {}
     token_parameters['app_name'] = urllib.quote('VIP Access')
@@ -185,6 +185,7 @@ def generate_otp_uri(token, secret, issuer='Symantec'):
         digits=token.get('digits', 6),
         algorithm=token.get('algorithm', 'SHA1').upper(),
         issuer=issuer,
+        image=image,
     )
     if token.get('counter') is not None: # HOTP
         data['counter'] = token['counter']

@@ -86,7 +86,7 @@ def test_generate_totp_uri():
         'timeskew': 0,
     }
     test_secret = b'ZqeD\xd9wg]"\x12\x1f7\xc7v6"\xf0\x13\\i'
-    expected_uri = urlparse.urlparse('otpauth://totp/VIP%20Access:SYMC26070843?secret=LJYWKRGZO5TV2IQSD434O5RWELYBGXDJ&issuer=Symantec&digits=6&algorithm=SHA1&period=30')
+    expected_uri = urlparse.urlparse('otpauth://totp/VIP%20Access:SYMC26070843?secret=LJYWKRGZO5TV2IQSD434O5RWELYBGXDJ&issuer=Symantec&digits=6&algorithm=SHA1&period=30&image=https://vip.symantec.com/favicon.ico')
     generated_uri = urlparse.urlparse(generate_otp_uri(test_token, test_secret))
     assert generated_uri.scheme == expected_uri.scheme
     assert generated_uri.netloc == expected_uri.netloc
@@ -110,7 +110,7 @@ def test_generate_hotp_uri():
         'timeskew': 0,
     }
     test_secret = b'\x9a\x13\xcd2!\xad\xbd\x97R\xfcEE\xb6\x92e\xb4\x14\xb0\xfem'
-    expected_uri = urlparse.urlparse('otpauth://hotp/VIP%20Access:UBHE57586348?digits=6&algorithm=SHA1&counter=1&issuer=Symantec&secret=TIJ42MRBVW6ZOUX4IVC3NETFWQKLB7TN')
+    expected_uri = urlparse.urlparse('otpauth://hotp/VIP%20Access:UBHE57586348?digits=6&algorithm=SHA1&counter=1&issuer=Symantec&secret=TIJ42MRBVW6ZOUX4IVC3NETFWQKLB7TN&image=https://vip.symantec.com/favicon.ico')
     generated_uri = urlparse.urlparse(generate_otp_uri(test_token, test_secret))
     assert generated_uri.scheme == expected_uri.scheme
     assert generated_uri.netloc == expected_uri.netloc
