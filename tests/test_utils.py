@@ -24,6 +24,7 @@ except ImportError:
 from vipaccess.provision import *
 
 from nose.tools import assert_equal, assert_true, assert_false, assert_is_none, assert_is_not_none
+from time import sleep
 
 
 def test_generate_request():
@@ -120,7 +121,7 @@ def test_generate_hotp_uri():
     assert_equal(urlparse.parse_qs(expected_uri.params), urlparse.parse_qs(generated_uri.params))
     assert_equal(urlparse.parse_qs(expected_uri.query), urlparse.parse_qs(generated_uri.query))
 
-def provision_valid_token(token_model, attr, not_attr):
+def provision_valid_token(token_model, attr, not_attr, check_sync=False):
     test_request = generate_request(token_model=token_model)
     test_response = requests.post(PROVISIONING_URL, data=test_request)
     test_otp_token = get_token_from_response(test_response.content)
@@ -129,12 +130,21 @@ def provision_valid_token(token_model, attr, not_attr):
     assert test_otp_token['id'].startswith(token_model)
     test_token_secret = decrypt_key(test_otp_token['iv'], test_otp_token['cipher'])
     assert_true(check_token(test_otp_token, test_token_secret))
+    if check_sync:
+        if test_otp_token['period'] is not None:
+            time.sleep(2 * test_otp_token['period'])
+        assert_true(sync_token(test_otp_token, test_token_secret))
 
 def test_check_token_models():
+    # Only try syncing one TOTP token, because it requires a delay.
+    # Can we parallelize away? (https://nose.readthedocs.io/en/latest/doc_tests/test_multiprocess/multiprocess.html
+    sync = True
     for token_model in ('VSMT', 'VSST', 'SYMC', 'SYDC'):
-        yield provision_valid_token, token_model, 'period', 'counter'
+        yield provision_valid_token, token_model, 'period', 'counter', sync
+        sync = False
+
     for token_model in ('UBHE',):
-        yield provision_valid_token, token_model, 'counter', 'period'
+        yield provision_valid_token, token_model, 'counter', 'period', True
 
 def test_check_token_detects_invalid_token():
     test_token = {'id': 'SYMC26070843', 'period': 30}

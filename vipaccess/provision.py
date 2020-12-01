@@ -40,6 +40,7 @@ from oath import totp, hotp
 PROVISIONING_URL = 'https://services.vip.symantec.com/prov'
 
 TEST_URL = 'https://vip.symantec.com/otpCheck'
+SYNC_URL = 'https://vip.symantec.com/otpSync'
 
 HMAC_KEY = b'\xdd\x0b\xa6\x92\xc3\x8a\xa3\xa9\x93\xa3\xaa\x26\x96\x8c\xd9\xc2\xaa\x2a\xa2\xcb\x23\xb7\xc2\xd2\xaa\xaf\x8f\x8f\xc9\xa0\xa9\xa1'
 
@@ -215,6 +216,36 @@ def check_token(token, secret, session=requests, timestamp=None):
     if "Your VIP Credential is working correctly" in token_check.text:
         if token.get('counter') is not None:
             token['counter'] += 1
+        return True
+    elif "Your VIP credential needs to be sync" in token_check.text:
+        return False
+    else:
+        return None
+
+def sync_token(token, secret, session=requests, timestamp=None):
+    '''Sync the generated token. This will fail for a TOTP token if performed less than 2 periods after the last sync or check.'''
+    secret_hex = binascii.b2a_hex(secret).decode('ascii')
+    if timestamp is None:
+        timestamp = int(time.time())
+    if token.get('counter') is not None: # HOTP
+        # This reliably fails with -1, 0
+        otp1 = hotp(secret_hex, counter=token['counter'])
+        otp2 = hotp(secret_hex, counter=token['counter']+1)
+    elif token.get('period'): # TOTP
+        otp1 = totp(secret_hex, period=token['period'], t=timestamp-token['period'])
+        otp2 = totp(secret_hex, period=token['period'], t=timestamp)
+    else: # Assume TOTP with default period 30 (FIXME)
+        otp1 = totp(secret_hex, t=timestamp-30)
+        otp2 = totp(secret_hex, t=timestamp)
+
+    data = {'cr%s'%d:c for d,c in enumerate(otp1, 1)}
+    data.update({'ncr%s'%d:c for d,c in enumerate(otp2, 1)})
+    data['cred'] = token['id']
+    data['continue'] = 'otp_sync'
+    token_check = session.post(SYNC_URL, data=data)
+    if "Your VIP Credential is successfully synced" in token_check.text:
+        if token.get('counter') is not None:
+            token['counter'] += 2
         return True
     elif "Your VIP credential needs to be sync" in token_check.text:
         return False
