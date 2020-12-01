@@ -201,13 +201,13 @@ def generate_otp_uri(token, secret, issuer='Symantec', image='https://vip.symant
 
 def check_token(token, secret, session=requests, timestamp=None):
     '''Check the validity of the generated token.'''
-    secret_b32 = binascii.b2a_hex(secret).decode('ascii')
+    secret_hex = binascii.b2a_hex(secret).decode('ascii')
     if token.get('counter') is not None: # HOTP
-        otp = hotp(secret_b32, counter=token['counter'])
+        otp = hotp(secret_hex, counter=token['counter'])
     elif token.get('period'): # TOTP
-        otp = totp(secret_b32, period=token['period'], t=timestamp)
+        otp = totp(secret_hex, period=token['period'], t=timestamp)
     else: # Assume TOTP with default period 30 (FIXME)
-        otp = totp(secret_b32)
+        otp = totp(secret_hex)
     data = {'cr%s'%d:c for d,c in enumerate(otp, 1)}
     data['cred'] = token['id']
     data['continue'] = 'otp_check'
