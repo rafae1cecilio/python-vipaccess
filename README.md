@@ -9,7 +9,7 @@ python-vipaccess
 
 [![PyPI](https://img.shields.io/pypi/v/python-vipaccess.svg)](https://pypi.python.org/pypi/python-vipaccess)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Build Status](https://api.travis-ci.org/dlenski/python-vipaccess.png)](https://travis-ci.org/dlenski/python-vipaccess)
+[![Build Status](https://github.com/dlenski/python-vipaccess/workflows/test_and_release/badge.svg)](https://github.com/dlenski/python-vipaccess/actions?query=workflow%3Atest_and_release)
 
 Table of Contents
 =================
