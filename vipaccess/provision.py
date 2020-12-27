@@ -175,7 +175,7 @@ def decrypt_key(token_iv, token_cipher):
 
     return otp_key
 
-def generate_otp_uri(token, secret, issuer='VIP Access', image='https://vip.symantec.com/favicon.ico'):
+def generate_otp_uri(token, secret, issuer='VIP Access', image='https://raw.githubusercontent.com/dlenski/python-vipaccess/master/vipaccess.png'):
     '''Generate the OTP URI.'''
     token_parameters = {}
     token_parameters['issuer'] = urllib.quote(issuer)
