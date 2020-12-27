@@ -189,8 +189,8 @@ def main():
                    help="Print the new credential, but don't save it to a file")
     m.add_argument('-o', '--dotfile', type=PathType(type='file', exists=False), default=os.path.expanduser('~/.vipaccess'),
                    help="File in which to store the new credential (default ~/.vipaccess)")
-    pprov.add_argument('-i', '--issuer', default="Symantec", action='store',
-                       help="Specify the issuer name to use (default: Symantec)")
+    pprov.add_argument('-i', '--issuer', default="VIP Access", action='store',
+                       help="Specify the issuer name to use (default: %(default)s)")
     pprov.add_argument('-t', '--token-model', default='SYMC',
                       help='VIP Access token model. Often SYMC/VSMT ("mobile" token, default) or '
                            'SYDC/VSST ("desktop" token). Some clients only accept one or the other. '

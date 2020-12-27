@@ -175,10 +175,10 @@ def decrypt_key(token_iv, token_cipher):
 
     return otp_key
 
-def generate_otp_uri(token, secret, issuer='Symantec', image='https://vip.symantec.com/favicon.ico'):
+def generate_otp_uri(token, secret, issuer='VIP Access', image='https://vip.symantec.com/favicon.ico'):
     '''Generate the OTP URI.'''
     token_parameters = {}
-    token_parameters['app_name'] = urllib.quote('VIP Access')
+    token_parameters['issuer'] = urllib.quote(issuer)
     token_parameters['account_name'] = urllib.quote(token.get('id', 'Unknown'))
     secret = base64.b32encode(secret).upper()
     data = dict(
@@ -198,7 +198,7 @@ def generate_otp_uri(token, secret, issuer='Symantec', image='https://vip.symant
         data['period'] = 30
         token_parameters['otp_type'] = urllib.quote('totp')
     token_parameters['parameters'] = urllib.urlencode(data)
-    return 'otpauth://%(otp_type)s/%(app_name)s:%(account_name)s?%(parameters)s' % token_parameters
+    return 'otpauth://%(otp_type)s/%(issuer)s:%(account_name)s?%(parameters)s' % token_parameters
 
 def check_token(token, secret, session=requests, timestamp=None):
     '''Check the validity of the generated token.'''

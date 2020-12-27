@@ -89,7 +89,7 @@ def test_generate_totp_uri():
         'timeskew': 0,
     }
     test_secret = b'ZqeD\xd9wg]"\x12\x1f7\xc7v6"\xf0\x13\\i'
-    expected_uri = urlparse.urlparse('otpauth://totp/VIP%20Access:SYMC26070843?secret=LJYWKRGZO5TV2IQSD434O5RWELYBGXDJ&issuer=Symantec&digits=6&algorithm=SHA1&period=30&image=https://vip.symantec.com/favicon.ico')
+    expected_uri = urlparse.urlparse('otpauth://totp/VIP%20Access:SYMC26070843?secret=LJYWKRGZO5TV2IQSD434O5RWELYBGXDJ&issuer=VIP%20Access&digits=6&algorithm=SHA1&period=30&image=https://vip.symantec.com/favicon.ico')
     generated_uri = urlparse.urlparse(generate_otp_uri(test_token, test_secret))
     assert_equal(expected_uri.scheme, generated_uri.scheme)
     assert_equal(expected_uri.netloc, generated_uri.netloc)
@@ -103,7 +103,7 @@ def test_generate_hotp_uri():
         'iteration_count': 50,
         'iv': b'Q\xf6I\xb3\xc9!\xfd3\xc64\x8ae\x83\x8d\x9c\xaf',
         'id': 'UBHE57586348',
-        'cipher': b"!\x90)]e\x12\xe6\xcf\xa9\xd3\xa7\xaf\xdf\xb0\x89\x1f~\xe6\x17\xe7'\xd7pU\xcd>x\xf7\xc1\xc22\xe1"    ,
+        'cipher': b"!\x90)]e\x12\xe6\xcf\xa9\xd3\xa7\xaf\xdf\xb0\x89\x1f~\xe6\x17\xe7'\xd7pU\xcd>x\xf7\xc1\xc22\xe1",
         'digest': b'\xc3sA\xe9\x02\\\xff\x02m\x1d\xb5i\x1a\xb7\xdc\x85&yl\xcd',
         'expiry': '2022-06-03T07:21:46.825Z',
         'period': None,
@@ -113,7 +113,7 @@ def test_generate_hotp_uri():
         'timeskew': 0,
     }
     test_secret = b'\x9a\x13\xcd2!\xad\xbd\x97R\xfcEE\xb6\x92e\xb4\x14\xb0\xfem'
-    expected_uri = urlparse.urlparse('otpauth://hotp/VIP%20Access:UBHE57586348?digits=6&algorithm=SHA1&counter=1&issuer=Symantec&secret=TIJ42MRBVW6ZOUX4IVC3NETFWQKLB7TN&image=https://vip.symantec.com/favicon.ico')
+    expected_uri = urlparse.urlparse('otpauth://hotp/VIP%20Access:UBHE57586348?digits=6&algorithm=SHA1&counter=1&issuer=VIP%20Access&secret=TIJ42MRBVW6ZOUX4IVC3NETFWQKLB7TN&image=https://vip.symantec.com/favicon.ico')
     generated_uri = urlparse.urlparse(generate_otp_uri(test_token, test_secret))
     assert_equal(expected_uri.scheme, generated_uri.scheme)
     assert_equal(expected_uri.netloc, generated_uri.netloc)
