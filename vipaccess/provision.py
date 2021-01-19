@@ -185,8 +185,12 @@ def generate_otp_uri(token, secret, issuer='VIP Access', image='https://raw.gith
         secret=secret,
         digits=token.get('digits', 6),
         algorithm=token.get('algorithm', 'SHA1').upper(),
-        issuer=issuer,
         image=image,
+        # Per Google's otpauth:// URI spec (https://github.com/google/google-authenticator/wiki/Key-Uri-Format#issuer),
+        # the issuer in the URI path and the issuer parameter are equivalent.
+        # Per #53, Authy does not correctly parse the latter.
+        # Therefore, we include only the former (issuer in the URI path) for maximum compatibility.
+        # issuer=issuer,
     )
     if token.get('counter') is not None: # HOTP
         data['counter'] = token['counter']
