@@ -38,6 +38,7 @@ from oath import totp, hotp
 
 
 PROVISIONING_URL = 'https://services.vip.symantec.com/prov'
+VIP_ACCESS_LOGO = 'https://raw.githubusercontent.com/dlenski/python-vipaccess/master/vipaccess.png'
 
 TEST_URL = 'https://vip.symantec.com/otpCheck'
 SYNC_URL = 'https://vip.symantec.com/otpSync'
@@ -175,7 +176,7 @@ def decrypt_key(token_iv, token_cipher):
 
     return otp_key
 
-def generate_otp_uri(token, secret, issuer='VIP Access', image='https://raw.githubusercontent.com/dlenski/python-vipaccess/master/vipaccess.png'):
+def generate_otp_uri(token, secret, issuer='VIP Access', image=VIP_ACCESS_LOGO):
     '''Generate the OTP URI.'''
     token_parameters = {}
     token_parameters['issuer'] = urllib.quote(issuer)
