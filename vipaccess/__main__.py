@@ -144,8 +144,9 @@ def uri(p, args):
         key = oath.google_authenticator.lenient_b32decode(secret)
     except Exception as e:
         p.error('error interpreting secret as base32: %s' % e)
-    print('Token URI:\n')
-    print('    ' + vp.generate_otp_uri(d, key, args.issuer))
+    if args.verbose:
+        print('Token URI:\n    ', file=sys.stderr, end='')
+    print(vp.generate_otp_uri(d, key, args.issuer))
 
 def show(p, args):
     if args.secret:
@@ -226,6 +227,7 @@ def main():
                        help="Specify the issuer name to use (default: Symantec)")
     puri.add_argument('-I', '--identity', action='store',
                        help="Specify the ID of the token to use (required with --secret))")
+    puri.add_argument('-v', '--verbose', action='store_true')
     puri.set_defaults(func=uri)
 
     p.set_default_subparser('show')
