@@ -98,7 +98,7 @@ def check(p, args):
             p.error('%s does not specify secret' % args.dotfile)
         secret = d['secret']
 
-    if not args.identity:
+    if d.get('id', 'Unknown') == 'Unknown':
         p.error("Token identity unknown; specify with -I/--identity")
 
     try:
