@@ -56,9 +56,12 @@ def provision(p, args):
     otp_secret_b32 = base64.b32encode(otp_secret).upper().decode('ascii')
     print("Checking token against Symantec server...")
     if not vp.check_token(otp_token, otp_secret, session):
-        print("WARNING: Something went wrong--the token could not be validated.\n",
-              "    (check your system time; it differs from the server's by %d seconds)\n" % otp_token['timeskew'],
-              file=sys.stderr)
+        p.error("Something went wrong--the token could not be validated.\n"
+                "    (Check your system time; it differs from the server's by %d seconds)\n" % otp_token['timeskew'])
+    elif 'period' in otp_token and otp_token['timeskew'] > otp_token['period']/10:
+        p.error("Your system time differs from the server's by %d seconds;\n"
+                "    The offset would be 'baked in' to the newly-created token.\n"
+                "    Fix system time and try again." % otp_token['timeskew'])
 
     if args.print:
         otp_uri = vp.generate_otp_uri(otp_token, otp_secret, args.issuer)

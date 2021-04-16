@@ -213,7 +213,7 @@ def check_token(token, secret, session=requests, timestamp=None):
     elif token.get('period'): # TOTP
         otp = totp(secret_hex, period=token['period'], t=timestamp)
     else: # Assume TOTP with default period 30 (FIXME)
-        otp = totp(secret_hex)
+        otp = totp(secret_hex, t=timestamp)
     data = {'cr%s'%d:c for d,c in enumerate(otp, 1)}
     data['cred'] = token['id']
     data['continue'] = 'otp_check'
