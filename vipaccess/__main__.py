@@ -58,7 +58,7 @@ def provision(p, args):
     if not vp.check_token(otp_token, otp_secret, session):
         p.error("Something went wrong--the token could not be validated.\n"
                 "    (Check your system time; it differs from the server's by %d seconds)\n" % otp_token['timeskew'])
-    elif 'period' in otp_token and otp_token['timeskew'] > otp_token['period']/10:
+    elif otp_token.get('period') and otp_token['timeskew'] > otp_token['period']/10:
         p.error("Your system time differs from the server's by %d seconds;\n"
                 "    The offset would be 'baked in' to the newly-created token.\n"
                 "    Fix system time and try again." % otp_token['timeskew'])
