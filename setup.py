@@ -2,14 +2,12 @@
 from setuptools import setup
 from io import open
 
-with open('description.rst', encoding='utf-8') as f:
-    description = f.read()
-
 setup(
     name='python-vipaccess',
-    version='0.13',
+    version='0.14',
     description="A free software implementation of Symantec's VIP Access application and protocol",
-    long_description=description,
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     url='https://github.com/dlenski/python-vipaccess',
     author='Daniel Lenski',
     author_email='dlenski@gmail.com',
