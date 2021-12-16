@@ -41,8 +41,5 @@ setup(
             'vipaccess=vipaccess.__main__:main',
         ],
     },
-    test_requires=[
-        'nose>=1.0',
-    ],
-    test_suite='nose.collector',
+    test_suite='nose2.collector.collector',
 )
