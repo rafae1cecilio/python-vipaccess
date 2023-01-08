@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
 from setuptools import setup
 from io import open
+from os import path
+
+version_py = path.join('vipaccess', 'version.py')
+
+d = {}
+with open(version_py, 'r') as fh:
+    exec(fh.read(), d)
+    version_pep = d['__version__']
 
 setup(
     name='python-vipaccess',
-    version='0.14',
+    version=version_pep,
     description="A free software implementation of Symantec's VIP Access application and protocol",
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',

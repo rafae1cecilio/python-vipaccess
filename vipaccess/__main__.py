@@ -6,6 +6,7 @@ import oath
 import time
 import base64
 from vipaccess.patharg import PathType
+from vipaccess.version import __version__
 from vipaccess import provision as vp
 
 EXCL_WRITE = 'x' if sys.version_info>=(3,3) else 'wx'
@@ -232,6 +233,9 @@ def main():
                        help="Specify the ID of the token to use (required with --secret))")
     puri.add_argument('-v', '--verbose', action='store_true')
     puri.set_defaults(func=uri)
+
+    pver = sp.add_parser('version', help='Show version of this program')
+    pver.set_defaults(func=lambda p, args: print('{} {}'.format(p.prog, __version__), file=sys.stderr))
 
     p.set_default_subparser('show')
     args = p.parse_args()
