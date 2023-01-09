@@ -35,6 +35,7 @@ from Crypto.Cipher import AES
 from Crypto.Random import random
 import xml.etree.ElementTree as etree
 from oath import totp, hotp
+from vipaccess.version import __version__
 
 
 PROVISIONING_URL = 'https://services.vip.symantec.com/prov'
@@ -55,21 +56,12 @@ REQUEST_TEMPLATE = '''<?xml version="1.0" encoding="UTF-8" ?>
     <ActivationCode></ActivationCode>
     <OtpAlgorithm type="%(otp_algorithm)s"/>
     <SharedSecretDeliveryMethod>%(shared_secret_delivery_method)s</SharedSecretDeliveryMethod>
-    <DeviceId>
-        <Manufacturer>%(manufacturer)s</Manufacturer>
-        <SerialNo>%(serial)s</SerialNo>
-        <Model>%(model)s</Model>
-    </DeviceId>
     <Extension extVersion="auth" xsi:type="vip:ProvisionInfoType"
         xmlns:vip="http://www.verisign.com/2006/08/vipservice">
         <AppHandle>%(app_handle)s</AppHandle>
         <ClientIDType>%(client_id_type)s</ClientIDType>
         <ClientID>%(client_id)s</ClientID>
         <DistChannel>%(dist_channel)s</DistChannel>
-        <ClientInfo>
-            <os>%(os)s</os>
-            <platform>%(platform)s</platform>
-        </ClientInfo>
         <ClientTimestamp>%(timestamp)d</ClientTimestamp>
         <Data>%(data)s</Data>
     </Extension>
@@ -78,21 +70,15 @@ REQUEST_TEMPLATE = '''<?xml version="1.0" encoding="UTF-8" ?>
 
 def generate_request(**request_parameters):
     '''Generate a token provisioning request.'''
-    default_model = 'MacBookPro%d,%d' % (random.randint(1, 12), random.randint(1, 4))
     default_request_parameters = {
         'timestamp':int(time.time()),
         'token_model':'SYMC',
         'otp_algorithm':'HMAC-SHA1-TRUNC-6DIGITS',
         'shared_secret_delivery_method':'HTTPS',
-        'manufacturer':'Apple Inc.',
-        'serial':''.join(random.choice(string.digits + string.ascii_uppercase) for x in range(12)),
-        'model':default_model,
         'app_handle':'iMac010200',
         'client_id_type':'BOARDID',
-        'client_id':'Mac-' + ''.join(random.choice('0123456789ABCDEF') for x in range(16)),
+        'client_id':'python-vipaccess-' + __version__,
         'dist_channel':'Symantec',
-        'platform':'iMac',
-        'os':default_model,
     }
 
     default_request_parameters.update(request_parameters)

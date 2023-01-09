@@ -28,21 +28,16 @@ from warnings import warn
 
 
 def test_generate_request():
-    expected = '<?xml version="1.0" encoding="UTF-8" ?>\n<GetSharedSecret Id="1412030064" Version="2.0"\n    xmlns="http://www.verisign.com/2006/08/vipservice"\n    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n    <TokenModel>SYMC</TokenModel>\n    <ActivationCode></ActivationCode>\n    <OtpAlgorithm type="HMAC-SHA1-TRUNC-6DIGITS"/>\n    <SharedSecretDeliveryMethod>HTTPS</SharedSecretDeliveryMethod>\n    <DeviceId>\n        <Manufacturer>Apple Inc.</Manufacturer>\n        <SerialNo>7QJR44Y54LK3</SerialNo>\n        <Model>MacBookPro10,1</Model>\n    </DeviceId>\n    <Extension extVersion="auth" xsi:type="vip:ProvisionInfoType"\n        xmlns:vip="http://www.verisign.com/2006/08/vipservice">\n        <AppHandle>iMac010200</AppHandle>\n        <ClientIDType>BOARDID</ClientIDType>\n        <ClientID>Mac-3E36319D3EA483BD</ClientID>\n        <DistChannel>Symantec</DistChannel>\n        <ClientInfo>\n            <os>MacBookPro10,1</os>\n            <platform>iMac</platform>\n        </ClientInfo>\n        <ClientTimestamp>1412030064</ClientTimestamp>\n        <Data>Y95GpBio35otwd2H/4TjrukR0AnG7VR/KJ7qxz5Y370=</Data>\n    </Extension>\n</GetSharedSecret>'
+    expected = '<?xml version="1.0" encoding="UTF-8" ?>\n<GetSharedSecret Id="1412030064" Version="2.0"\n    xmlns="http://www.verisign.com/2006/08/vipservice"\n    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n    <TokenModel>SYMC</TokenModel>\n    <ActivationCode></ActivationCode>\n    <OtpAlgorithm type="HMAC-SHA1-TRUNC-6DIGITS"/>\n    <SharedSecretDeliveryMethod>HTTPS</SharedSecretDeliveryMethod>\n    <Extension extVersion="auth" xsi:type="vip:ProvisionInfoType"\n        xmlns:vip="http://www.verisign.com/2006/08/vipservice">\n        <AppHandle>iMac010200</AppHandle>\n        <ClientIDType>BOARDID</ClientIDType>\n        <ClientID>python-vipaccess-X.Y.Z</ClientID>\n        <DistChannel>Symantec</DistChannel>\n        <ClientTimestamp>1412030064</ClientTimestamp>\n        <Data>MyvXiv5vU27qBbRDN2HwbVAp0n+e67QWfWhXlbPb4Q8=</Data>\n    </Extension>\n</GetSharedSecret>'
     params = {
         'timestamp': 1412030064,
         'token_model': 'SYMC',
         'otp_algorithm': 'HMAC-SHA1-TRUNC-6DIGITS',
         'shared_secret_delivery_method': 'HTTPS',
-        'manufacturer': 'Apple Inc.',
-        'serial': '7QJR44Y54LK3',
-        'model': 'MacBookPro10,1',
         'app_handle': 'iMac010200',
         'client_id_type': 'BOARDID',
-        'client_id': 'Mac-3E36319D3EA483BD',
+        'client_id': 'python-vipaccess-X.Y.Z',
         'dist_channel': 'Symantec',
-        'platform': 'iMac',
-        'os': 'MacBookPro10,1',
     }
     request = generate_request(**params)
     assert expected == request
