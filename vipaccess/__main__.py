@@ -69,13 +69,17 @@ def provision(p, args):
         print('Credential created successfully:\n\t' + otp_uri)
         print("This credential expires on this date: " + otp_token['expiry'])
         print('\nYou will need the ID to register this credential: ' + otp_token['id'])
+        print('\nYou can use oathtool to generate the same OTP codes')
+        print('as would be produced by the official VIP Access apps:\n')
+        d = '-d{} '.format(otp_token['digits']) if otp_token['digits']!=6 else ''
         if otp_token['period'] is not None and otp_token['counter'] is None:
-            print('\nYou can use oathtool to generate the same OTP codes')
-            print('as would be produced by the official VIP Access apps:\n')
-            d = '-d{} '.format(otp_token['digits']) if otp_token['digits']!=6 else ''
             s = '-s{} '.format(otp_token['period']) if otp_token['period']!=30 else ''
             print('    oathtool    {}{}-b --totp {}  # output one code'''.format(d, s, otp_secret_b32))
             print('    oathtool -v {}{}-b --totp {}  # ... with extra information'''.format(d, s, otp_secret_b32))
+        elif otp_token['counter'] is not None:
+            c = otp_token['counter']
+            print('    oathtool    {}-c{} -b --hotp {}  # output next code (counter {})'''.format(d, c, otp_secret_b32, c))
+            print('    oathtool -v {}-c{} -b --hotp {}  # ... with extra information'''.format(d, c, otp_secret_b32))
     elif otp_token['digits']==6 and otp_token['algorithm']=='sha1' and otp_token['period']==30:
         os.umask(0o077) # stoken does this too (security)
         with open(os.path.expanduser(args.dotfile), EXCL_WRITE) as dotfile:
