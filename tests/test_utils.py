@@ -132,14 +132,17 @@ def provision_valid_token(token_model, attr, not_attr, check_sync=False):
             sleep(2 * test_otp_token['period'])
         assert sync_token(test_otp_token, test_token_secret)
 
-def test_check_token_models():
+def test_check_TOTP_token_models():
     # Only try syncing one TOTP token, because it requires a delay.
     # Can we parallelize away? (https://nose.readthedocs.io/en/latest/doc_tests/test_multiprocess/multiprocess.html
-    sync = True
+    first = True
     for token_model in ('VSMT', 'VSST', 'SYMC', 'SYDC'):
-        yield provision_valid_token, token_model, 'period', 'counter', sync
-        sync = False
+        if not first: sleep(3)  # Tests fail without this
+        yield provision_valid_token, token_model, 'period', 'counter', first
+        first = False
 
+
+def test_check_HOTP_token_models():
     for token_model in ('UBHE',):
         yield provision_valid_token, token_model, 'counter', 'period', True
 
