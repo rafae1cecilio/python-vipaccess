@@ -5,11 +5,13 @@ import argparse
 import oath
 import time
 import base64
+import re
 from vipaccess.patharg import PathType
 from vipaccess.version import __version__
 from vipaccess import provision as vp
 
 EXCL_WRITE = 'x' if sys.version_info>=(3,3) else 'wx'
+TOKEN_MODEL_REFERENCE_PAGE = 'https://support.symantec.com/us/en/article.tech239895.html'
 
 # http://stackoverflow.com/a/26379693/20789
 
@@ -40,6 +42,11 @@ def set_default_subparser(self, name, args=None):
             else:
                 args.insert(0, name)
 
+def check_token_model(val):
+    if not re.match(r'\w{3,4}$', val):
+        raise argparse.ArgumentTypeError('must be 3-4 alphanumeric characters')
+    return val
+
 argparse.ArgumentParser.set_default_subparser = set_default_subparser
 
 ########################################
@@ -51,7 +58,15 @@ def provision(p, args):
     session = vp.requests.Session()
     response = vp.get_provisioning_response(request, session)
     print("Getting token from response...")
-    otp_token = vp.get_token_from_response(response.content)
+    try:
+        otp_token = vp.get_token_from_response(response.content)
+    except RuntimeError as e:
+        if e.args == ('Unsupported token model', '4E0D'):
+            p.error("Unsupported token model {!r}.\n"
+                    "     See list at {}".format(
+                    args.token_model, TOKEN_MODEL_REFERENCE_PAGE))
+        p.error('Provisioning server error {}: {}'.format(
+            e.args[1], e.args[0]))
     print("Decrypting token...")
     otp_secret = vp.decrypt_key(otp_token['iv'], otp_token['cipher'])
     otp_secret_b32 = base64.b32encode(otp_secret).upper().decode('ascii')
@@ -78,7 +93,7 @@ def provision(p, args):
             print('    oathtool -v {}{}-b --totp {}  # ... with extra information'''.format(d, s, otp_secret_b32))
         elif otp_token['counter'] is not None:
             c = otp_token['counter']
-            print('    oathtool    {}-c{} -b --hotp {}  # output next code (counter {})'''.format(d, c, otp_secret_b32, c))
+            print('    oathtool    {}-c{} -b --hotp {}  # output next code (need to increment counter each time!)'''.format(d, c, otp_secret_b32))
             print('    oathtool -v {}-c{} -b --hotp {}  # ... with extra information'''.format(d, c, otp_secret_b32))
     elif otp_token['digits']==6 and otp_token['algorithm']=='sha1' and otp_token['period']==30:
         os.umask(0o077) # stoken does this too (security)
@@ -200,7 +215,7 @@ def main():
                    help="File in which to store the new credential (default ~/.vipaccess)")
     pprov.add_argument('-i', '--issuer', default="VIP Access", action='store',
                        help="Specify the issuer name to use (default: %(default)s)")
-    pprov.add_argument('-t', '--token-model', default='SYMC',
+    pprov.add_argument('-t', '--token-model', default='SYMC', type=check_token_model,
                       help='VIP Access token model. Often SYMC/VSMT ("mobile" token, default) or '
                            'SYDC/VSST ("desktop" token). Some clients only accept one or the other. '
                            "Other more obscure token types also exist: "

@@ -30,7 +30,7 @@ This is a fork of [**`cyrozap/python-vipaccess`**](https://github.com/dlenski/py
   external tools such as [`qrencode`](https://github.com/fukuchi/libqrencode)
   to convert an `otpauth://` URI to a QR code if needed, so it seems
   unnecessary to build in this functionality.
-- Option to generate either the mobile (`SYMC/VSMT`) or desktop (`SYDC/VSST`)
+- Option to generate either the mobile (`SYMC`/`VSMT`) or desktop (`SYDC`/`VSST`)
   versions of the VIP Access tokens; as far as I can tell there is no
   real difference between them, but some clients require one or the
   other specifically. There are also some rarer token types/prefixes
