@@ -15,6 +15,10 @@
 #   limitations under the License.
 
 
+import unittest
+import os
+IS_GITHUB_CI = os.getenv('GITHUB_ACTIONS')
+
 # Python 2/3 compatibility
 try:
     import urllib.parse as urlparse
@@ -132,6 +136,7 @@ def provision_valid_token(token_model, attr, not_attr, check_sync=False):
             sleep(2 * test_otp_token['period'])
         assert sync_token(test_otp_token, test_token_secret)
 
+@unittest.skipIf(IS_GITHUB_CI, reason='Network-based tests are unreliable in GitHub Actions CI')
 def test_check_TOTP_token_models():
     # Only try syncing one TOTP token, because it requires a delay.
     # Can we parallelize away? (https://nose.readthedocs.io/en/latest/doc_tests/test_multiprocess/multiprocess.html
@@ -142,10 +147,12 @@ def test_check_TOTP_token_models():
         first = False
 
 
+@unittest.skipIf(IS_GITHUB_CI, reason='Network-based tests are unreliable in GitHub Actions CI')
 def test_check_HOTP_token_models():
     for token_model in ('UBHE',):
         yield provision_valid_token, token_model, 'counter', 'period', True
 
+@unittest.skipIf(IS_GITHUB_CI, reason='Network-based tests are unreliable in GitHub Actions CI')
 def test_check_token_detects_invalid_token():
     test_token = {'id': 'SYMC26070843', 'period': 30}
     test_token_secret = b'ZqeD\xd9wg]"\x12\x1f7\xc7v6"\xf0\x13\\i'

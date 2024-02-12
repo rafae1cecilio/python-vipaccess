@@ -22,7 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install setuptools flake8 pytest
+        python -m pip install setuptools flake8 pytest wheel
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
@@ -30,6 +30,15 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Build
+      run: |
+        python setup.py sdist
+        python setup.py bdist_wheel
+    - name: Store distribution packages
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist
+        path: dist/
     - name: Tests and coverage
       run: |
         if [ -f requirements-test.txt ]; then pip install -r requirements-test.txt; fi
@@ -46,20 +55,17 @@ jobs:
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
 
+    environment:
+      name: pypi
+      url: https://pypi.org/p/python-vipacess
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
+    - name: Download distribution packages
+      uses: actions/download-artifact@v3
       with:
-        python-version: '3.x'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install setuptools wheel twine
+        name: dist
+        path: dist/
     - name: Deploy to PyPI
-      env:
-        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: |
-        python setup.py sdist bdist_wheel
-        twine upload dist/*
+      uses: pypa/gh-action-pypi-publish@release/v1
