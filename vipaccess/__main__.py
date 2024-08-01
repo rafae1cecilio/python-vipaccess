@@ -6,9 +6,15 @@ import oath
 import time
 import base64
 import re
+
 from vipaccess.patharg import PathType
 from vipaccess.version import __version__
 from vipaccess import provision as vp
+
+try:
+    import qrcode
+except ImportError:
+    qrcode = None
 
 EXCL_WRITE = 'x' if sys.version_info>=(3,3) else 'wx'
 TOKEN_MODEL_REFERENCE_PAGE = 'https://support.symantec.com/us/en/article.tech239895.html'
@@ -95,6 +101,12 @@ def provision(p, args):
             c = otp_token['counter']
             print('    oathtool    {}-c{} -b --hotp {}  # output next code (need to increment counter each time!)'''.format(d, c, otp_secret_b32))
             print('    oathtool -v {}-c{} -b --hotp {}  # ... with extra information'''.format(d, c, otp_secret_b32))
+
+        if qrcode:
+            print()
+            q = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_L, border=1)
+            q.add_data(otp_uri)
+            q.print_ascii(invert=True)
     elif otp_token['digits']==6 and otp_token['algorithm']=='sha1' and otp_token['period']==30:
         os.umask(0o077) # stoken does this too (security)
         with open(os.path.expanduser(args.dotfile), EXCL_WRITE) as dotfile:
@@ -169,7 +181,14 @@ def uri(p, args):
         p.error('error interpreting secret as base32: %s' % e)
     if args.verbose:
         print('Token URI:\n    ', file=sys.stderr, end='')
-    print(vp.generate_otp_uri(d, key, args.issuer))
+
+    otp_uri = vp.generate_otp_uri(d, key, args.issuer)
+    print(otp_uri)
+    if qrcode:
+        print()
+        q = qrcode.QRCode()
+        q.add_data(otp_uri)
+        q.print_ascii(invert=True)
 
 def show(p, args):
     if args.secret:
@@ -204,13 +223,15 @@ def main():
             setattr(namespace, 'dotfile', None)
             setattr(namespace, self.dest, True if not values else values[0] if len(values)==1 else values)
 
+    also = ' and display it as a QR code' if qrcode else ''
+
     sp = p.add_subparsers(dest='cmd')
 
     pprov = sp.add_parser('provision', help='Provision a new VIP Access credential')
     pprov.set_defaults(func=provision)
     m = pprov.add_mutually_exclusive_group()
     m.add_argument('-p', '--print', action=UnsetDotfileAndStore, nargs=0,
-                   help="Print the new credential, but don't save it to a file")
+                   help="Print the new credential%s, but don't save it to a file" % also)
     m.add_argument('-o', '--dotfile', type=PathType(type='file', exists=False), default=os.path.expanduser('~/.vipaccess'),
                    help="File in which to store the new credential (default ~/.vipaccess)")
     pprov.add_argument('-i', '--issuer', default="VIP Access", action='store',
@@ -240,7 +261,7 @@ def main():
     pshow.add_argument('-v', '--verbose', action='store_true')
     pshow.set_defaults(func=show)
 
-    puri = sp.add_parser('uri', help="Export the credential as a URI (otpauth://)")
+    puri = sp.add_parser('uri', help="Export the credential as a URI (otpauth://)%s" % also)
     m = puri.add_mutually_exclusive_group()
     m.add_argument('-s', '--secret',  action=UnsetDotfileAndStore, nargs=1,
                    help="Specify the token secret on the command line (base32 encoded)")

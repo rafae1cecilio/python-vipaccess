@@ -44,6 +44,7 @@ setup(
         'oath>=1.4.1',
         'requests',
     ],
+    extras_require={"qr": ["qrcode"]},
     entry_points={
         'console_scripts': [
             'vipaccess=vipaccess.__main__:main',
