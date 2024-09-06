@@ -15,6 +15,10 @@
 #   limitations under the License.
 
 
+import unittest
+import os
+IS_GITHUB_CI = os.getenv('GITHUB_ACTIONS')
+
 # Python 2/3 compatibility
 try:
     import urllib.parse as urlparse
@@ -84,7 +88,7 @@ def test_generate_totp_uri():
         'timeskew': 0,
     }
     test_secret = b'ZqeD\xd9wg]"\x12\x1f7\xc7v6"\xf0\x13\\i'
-    expected_uri = urlparse.urlparse('otpauth://totp/VIP%20Access:SYMC26070843?secret=LJYWKRGZO5TV2IQSD434O5RWELYBGXDJ&digits=6&algorithm=SHA1&period=30&image=https://raw.githubusercontent.com/dlenski/python-vipaccess/master/vipaccess.png')
+    expected_uri = urlparse.urlparse('otpauth://totp/VIP%20Access:SYMC26070843?secret=LJYWKRGZO5TV2IQSD434O5RWELYBGXDJ&image=' + VIP_ACCESS_LOGO)
     generated_uri = urlparse.urlparse(generate_otp_uri(test_token, test_secret))
     assert expected_uri.scheme == generated_uri.scheme
     assert expected_uri.netloc == generated_uri.netloc
@@ -108,7 +112,7 @@ def test_generate_hotp_uri():
         'timeskew': 0,
     }
     test_secret = b'\x9a\x13\xcd2!\xad\xbd\x97R\xfcEE\xb6\x92e\xb4\x14\xb0\xfem'
-    expected_uri = urlparse.urlparse('otpauth://hotp/VIP%20Access:UBHE57586348?digits=6&algorithm=SHA1&counter=1&secret=TIJ42MRBVW6ZOUX4IVC3NETFWQKLB7TN&image=https://raw.githubusercontent.com/dlenski/python-vipaccess/master/vipaccess.png')
+    expected_uri = urlparse.urlparse('otpauth://hotp/VIP%20Access:UBHE57586348?counter=1&secret=TIJ42MRBVW6ZOUX4IVC3NETFWQKLB7TN&image=' + VIP_ACCESS_LOGO)
     generated_uri = urlparse.urlparse(generate_otp_uri(test_token, test_secret))
     assert expected_uri.scheme == generated_uri.scheme
     assert expected_uri.netloc == generated_uri.netloc
@@ -132,6 +136,7 @@ def provision_valid_token(token_model, attr, not_attr, check_sync=False):
             sleep(2 * test_otp_token['period'])
         assert sync_token(test_otp_token, test_token_secret)
 
+@unittest.skipIf(IS_GITHUB_CI, reason='Network-based tests are unreliable in GitHub Actions CI')
 def test_check_TOTP_token_models():
     # Only try syncing one TOTP token, because it requires a delay.
     # Can we parallelize away? (https://nose.readthedocs.io/en/latest/doc_tests/test_multiprocess/multiprocess.html
@@ -142,10 +147,12 @@ def test_check_TOTP_token_models():
         first = False
 
 
+@unittest.skipIf(IS_GITHUB_CI, reason='Network-based tests are unreliable in GitHub Actions CI')
 def test_check_HOTP_token_models():
     for token_model in ('UBHE',):
         yield provision_valid_token, token_model, 'counter', 'period', True
 
+@unittest.skipIf(IS_GITHUB_CI, reason='Network-based tests are unreliable in GitHub Actions CI')
 def test_check_token_detects_invalid_token():
     test_token = {'id': 'SYMC26070843', 'period': 30}
     test_token_secret = b'ZqeD\xd9wg]"\x12\x1f7\xc7v6"\xf0\x13\\i'

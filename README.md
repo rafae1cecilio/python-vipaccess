@@ -1,9 +1,3 @@
-| **IMPORTANT!** |
-| -------------- |
-| As of May 17, 2020, `python-vipaccess` stopped working for provisioning new Symantec VIP Access tokens (which was its raison d'être). |
-| As of May 27, 2020, it's working again. |
-| It might stop working again. and we might not be able to get it to work again [(see #39)](https://github.com/dlenski/python-vipaccess/issues/39#issuecomment-628741743) |
-
 python-vipaccess
 ================
 

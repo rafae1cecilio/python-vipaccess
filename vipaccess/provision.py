@@ -24,6 +24,7 @@ import hmac
 import string
 import sys
 import time
+import xml.etree.ElementTree as etree
 # Python 2/3 compatibility
 try:
     import urllib.parse as urllib
@@ -36,7 +37,6 @@ from Crypto.Random import random
 import xml.etree.ElementTree as etree
 from oath import totp, hotp
 from vipaccess.version import __version__
-
 
 PROVISIONING_URL = 'https://services.vip.symantec.com/prov'
 VIP_ACCESS_LOGO = 'https://raw.githubusercontent.com/dlenski/python-vipaccess/master/vipaccess.png'
@@ -170,25 +170,28 @@ def generate_otp_uri(token, secret, issuer='VIP Access', image=VIP_ACCESS_LOGO):
     secret = base64.b32encode(secret).upper()
     data = dict(
         secret=secret,
-        digits=token.get('digits', 6),
-        algorithm=token.get('algorithm', 'SHA1').upper(),
-        image=image,
         # Per Google's otpauth:// URI spec (https://github.com/google/google-authenticator/wiki/Key-Uri-Format#issuer),
         # the issuer in the URI path and the issuer parameter are equivalent.
         # Per #53, Authy does not correctly parse the latter.
         # Therefore, we include only the former (issuer in the URI path) for maximum compatibility.
         # issuer=issuer,
     )
+    if image:
+        data['image'] = image
+    if token.get('digits', 6) != 6:  # 6 digits is the default
+        data['digits'] = token['digits']
+    if token.get('algorithm', 'SHA1').upper() != 'SHA1':  # SHA1 is the default
+        algorithm=token['algorithm'].upper(),
     if token.get('counter') is not None: # HOTP
         data['counter'] = token['counter']
-        token_parameters['otp_type'] = urllib.quote('hotp')
+        token_parameters['otp_type'] = 'hotp'
     elif token.get('period'): # TOTP
-        data['period'] = token['period']
-        token_parameters['otp_type'] = urllib.quote('totp')
+        if token['period'] != 30:  # 30 seconds is the default
+            data['period'] = token['period']
+        token_parameters['otp_type'] = 'totp'
     else: # Assume TOTP with default period 30 (FIXME)
-        data['period'] = 30
-        token_parameters['otp_type'] = urllib.quote('totp')
-    token_parameters['parameters'] = urllib.urlencode(data)
+        token_parameters['otp_type'] = 'totp'
+    token_parameters['parameters'] = urllib.urlencode(data, safe=':/')
     return 'otpauth://%(otp_type)s/%(issuer)s:%(account_name)s?%(parameters)s' % token_parameters
 
 def check_token(token, secret, session=requests, timestamp=None):
